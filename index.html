@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, initial-scale=1.0">
+<title>Barbearia Expanda — TV Apresentação</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --preto: #050505;
+  --dourado-rich: linear-gradient(135deg, #C9A84C 0%, #F4E79F 50%, #C9A84C 100%);
+  --dourado: #C9A84C;
+  --branco: #F4EFE6;
+  --transition-speed: 1.2s;
+}
+
+html, body {
+  width: 1920px; height: 1080px;
+  overflow: hidden;
+  background: var(--preto);
+  font-family: 'Outfit', sans-serif;
+  color: var(--branco);
+}
+
+/* ─── CINEMATIC ─── */
+.grain {
+  position: fixed; inset: 0; z-index: 999; pointer-events: none;
+  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.04; mix-blend-mode: overlay;
+}
+.light-leak {
+  position: fixed; inset: 0; z-index: 998; pointer-events: none;
+  background: radial-gradient(circle at 0% 0%, rgba(201,168,76,0.05) 0%, transparent 50%),
+              radial-gradient(circle at 100% 100%, rgba(201,168,76,0.05) 0%, transparent 50%);
+  animation: leak-float 10s ease-in-out infinite alternate;
+}
+@keyframes leak-float { 0%{opacity:.3;transform:scale(1)} 100%{opacity:.6;transform:scale(1.1)} }
+
+/* ─── SLIDE SYSTEM ─── */
+.slide {
+  position: absolute; inset: 0;
+  width: 1920px; height: 1080px;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--transition-speed) cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+  display: flex; align-items: center;
+}
+.slide.active { opacity: 1; pointer-events: auto; }
+
+/* ─── BACKGROUNDS ─── */
+.bg-wrap { position: absolute; inset: 0; z-index: 0; }
+.bg-photo {
+  position: absolute; inset: -100px;
+  background-size: cover; background-position: center;
+  filter: brightness(0.6) contrast(1.1);
+  transform: scale(1.1);
+}
+.slide.active .bg-photo { animation: ken-burns 12s ease-in-out forwards; }
+@keyframes ken-burns {
+  0%   { transform: scale(1.1) translate(0,0); }
+  100% { transform: scale(1.22) translate(-20px,-20px); }
+}
+.overlay-gradient {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(to right, rgba(0,0,0,.92) 0%, rgba(0,0,0,.4) 50%, rgba(0,0,0,.8) 100%);
+}
+.grid-deco {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background-image: radial-gradient(circle at 2px 2px, rgba(201,168,76,0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+}
+
+/* ─── PROGRESS BAR ─── */
+#progress-container {
+  position: fixed; bottom: 80px; left: 100px; right: 100px;
+  height: 2px; background: rgba(255,255,255,0.05); z-index: 1000;
+}
+#progress-bar {
+  height: 100%; background: var(--dourado-rich); width: 0%;
+  box-shadow: 0 0 20px var(--dourado);
+}
+
+/* ─── SLIDE COUNTER ─── */
+#slide-counter {
+  position: fixed; top: 36px; right: 60px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px; letter-spacing: 6px;
+  color: rgba(201,168,76,0.55); z-index: 1000;
+}
+
+/* ─── DOT INDICATORS ─── */
+#dots {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px; z-index: 1000;
+}
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(201,168,76,0.3); cursor: pointer;
+  transition: all 0.4s ease;
+}
+.dot.active {
+  background: var(--dourado); width: 28px; border-radius: 4px;
+  box-shadow: 0 0 10px rgba(201,168,76,0.6);
+}
+
+/* ─── PAUSE INDICATOR ─── */
+#pause-indicator {
+  position: fixed; top: 36px; left: 60px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px; letter-spacing: 5px;
+  color: rgba(201,168,76,0.7); z-index: 1000;
+  opacity: 0; transition: opacity 0.3s;
+  display: flex; align-items: center; gap: 8px;
+}
+#pause-indicator.visible { opacity: 1; }
+#pause-indicator::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--dourado); display: block;
+  animation: blink 1s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ─── KEY HINT ─── */
+#key-hint {
+  position: fixed; bottom: 28px; right: 60px;
+  font-size: 12px; letter-spacing: 2px;
+  color: rgba(201,168,76,0.22); z-index: 1000;
+}
+
+/* ─── FOOTER ─── */
+.footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 80px; z-index: 500;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(201,168,76,0.1);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 100px;
+}
+.footer-item {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; letter-spacing: 3px;
+  color: rgba(244,239,230,0.5); text-transform: uppercase;
+}
+.footer-middle { display: flex; align-items: center; gap: 24px; }
+.footer-qr-wrap { display: flex; align-items: center; gap: 10px; }
+.footer-qr-wrap img { width: 48px; height: 48px; display: block; outline: 1px solid rgba(201,168,76,0.3); }
+.footer-qr-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; letter-spacing: 2px; color: var(--dourado); text-transform: uppercase; line-height: 1.5;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 6px; color: var(--dourado);
+}
+
+/* ─── ANIMATIONS ─── */
+.reveal-up {
+  opacity: 0; transform: translateY(50px);
+  transition: all 1s cubic-bezier(0.2,0.8,0.2,1);
+}
+.slide.active .reveal-up { opacity: 1; transform: translateY(0); }
+.slide.active .delay-1 { transition-delay: 0.2s; }
+.slide.active .delay-2 { transition-delay: 0.4s; }
+.slide.active .delay-3 { transition-delay: 0.6s; }
+.slide.active .delay-4 { transition-delay: 0.8s; }
+.slide.active .delay-5 { transition-delay: 1.0s; }
+
+.logo-svg-main { filter: drop-shadow(0 0 15px rgba(201,168,76,0.3)); }
+.logo-filter { position: absolute; width: 0; height: 0; }
+
+/* ════════ SLIDE 1: HERO ════════ */
+#s1 .hero-content { width: 100%; text-align: center; z-index: 10; position: relative; }
+#s1 .logo-container { margin-bottom: 40px; display: flex; justify-content: center; }
+#s1 .main-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 240px; line-height: 0.9; letter-spacing: 15px;
+  background: var(--dourado-rich);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+#s1 .subtitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px; font-style: italic; color: var(--branco); opacity: 0.8; margin-top: 20px;
+}
+#s1 .divider { width: 150px; height: 3px; background: var(--dourado-rich); margin: 40px auto; }
+
+/* ════════ SERVICE SLIDES ════════ */
+.service-content { padding-left: 150px; z-index: 10; max-width: 1000px; }
+.service-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--dourado);
+  letter-spacing: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;
+}
+.service-num::after { content: ''; width: 60px; height: 2px; background: var(--dourado); }
+.service-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 160px; line-height: 0.85; letter-spacing: 5px; margin-bottom: 30px;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+.service-title span { display: block; color: var(--dourado); }
+.service-desc {
+  font-size: 28px; line-height: 1.6; color: rgba(244,239,230,0.7); max-width: 700px; margin-bottom: 40px;
+}
+.service-list { list-style: none; }
+.service-list li {
+  font-size: 22px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; color: var(--branco);
+}
+.service-list li::before { content: '✦'; color: var(--dourado); }
+.watermark {
+  position: absolute; right: -50px; bottom: -50px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 600px;
+  color: rgba(201,168,76,0.03); z-index: 1; pointer-events: none;
+}
+
+/* ════════ GRID DE SERVIÇOS ════════ */
+.grid-container { width: 100%; padding: 0 100px; z-index: 10; }
+.grid-header { text-align: center; margin-bottom: 55px; }
+.grid-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 90px; letter-spacing: 10px; }
+.services-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 28px; }
+.service-card {
+  background: rgba(20,20,20,0.65); backdrop-filter: blur(10px);
+  border: 1px solid rgba(201,168,76,0.12); padding: 44px 28px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.service-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+  background: var(--dourado-rich); transform: scaleX(0); transition: transform 0.8s ease;
+}
+.slide.active .service-card::before { transform: scaleX(1); }
+.service-card i { font-size: 50px; color: var(--dourado); margin-bottom: 18px; display: block; }
+.service-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; margin-bottom: 8px; }
+.service-card p { font-size: 13px; color: var(--dourado); text-transform: uppercase; letter-spacing: 2px; }
+
+/* ════════ SLIDE PREÇOS ════════ */
+.price-container { width: 100%; padding: 0 100px; z-index: 10; }
+.price-header { text-align: center; margin-bottom: 50px; }
+.price-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 90px; letter-spacing: 10px; }
+.price-header p { color: var(--dourado); font-size: 16px; letter-spacing: 5px; margin-bottom: 10px; text-transform: uppercase; }
+.price-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+.price-card {
+  background: rgba(18,18,18,0.8); backdrop-filter: blur(10px);
+  border: 1px solid rgba(201,168,76,0.12); padding: 36px 30px; position: relative; overflow: hidden;
+}
+.price-card.featured { border-color: rgba(201,168,76,0.45); background: rgba(201,168,76,0.06); }
+.price-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--dourado-rich); }
+.price-card-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: 3px;
+  color: var(--branco); margin-bottom: 22px; padding-bottom: 16px;
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+  display: flex; align-items: center; gap: 12px;
+}
+.price-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid rgba(201,168,76,0.06);
+}
+.price-item:last-child { border-bottom: none; }
+.price-item-name { font-size: 19px; color: rgba(244,239,230,0.75); }
+.price-item-value { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--dourado); letter-spacing: 2px; }
+.price-badge {
+  position: absolute; top: 18px; right: 18px;
+  background: var(--dourado); color: #000;
+  font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; padding: 3px 10px;
+}
+
+/* ════════ SLIDE HORÁRIOS ════════ */
+.hours-wrap { width: 100%; z-index: 10; display: flex; align-items: center; gap: 120px; padding: 0 140px; }
+.hours-left { flex: 1.1; }
+.hours-pre { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; letter-spacing: 8px; color: var(--dourado); margin-bottom: 12px; text-transform: uppercase; }
+.hours-title { font-family: 'Bebas Neue', sans-serif; font-size: 110px; line-height: 0.88; letter-spacing: 4px; margin-bottom: 44px; }
+.hours-address { font-size: 22px; color: rgba(244,239,230,0.55); margin-bottom: 6px; }
+.hours-address strong { color: var(--dourado); }
+.hours-phone { font-size: 26px; color: var(--dourado); margin-top: 6px; }
+.hours-right { flex: 0.9; }
+.hours-table { width: 100%; }
+.hours-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 0; border-bottom: 1px solid rgba(201,168,76,0.1); font-size: 21px;
+}
+.hours-row:first-child { border-top: 1px solid rgba(201,168,76,0.1); }
+.hours-day { color: rgba(244,239,230,0.65); }
+.hours-time { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--dourado); letter-spacing: 2px; }
+.hours-closed { color: rgba(136,136,136,0.5); font-size: 16px; }
+.qr-section { margin-top: 44px; display: flex; align-items: center; gap: 20px; }
+.qr-section img { width: 110px; height: 110px; background: #fff; padding: 6px; }
+.qr-section-text { font-size: 19px; color: rgba(244,239,230,0.65); line-height: 1.6; }
+.qr-section-text strong { color: var(--dourado); font-size: 22px; display: block; }
+
+/* ════════ SLIDE FRASE ════════ */
+.frase-wrap { width: 100%; text-align: center; z-index: 10; padding: 0 240px; position: relative; }
+.quote-mark {
+  font-family: 'Playfair Display', serif; font-size: 420px;
+  color: rgba(201,168,76,0.055);
+  position: absolute; top: -100px; left: 80px;
+  line-height: 1; user-select: none; pointer-events: none; z-index: 1;
+}
+.frase-text {
+  font-family: 'Playfair Display', serif; font-size: 82px; font-style: italic;
+  color: var(--branco); line-height: 1.3; position: relative; z-index: 2;
+}
+.frase-text .gold { color: var(--dourado); }
+.frase-divider { width: 80px; height: 2px; background: var(--dourado); margin: 38px auto; }
+.frase-sig { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 12px; color: rgba(201,168,76,0.6); }
+
+/* ════════ CTA SLIDE ════════ */
+.cta-wrap { width: 100%; text-align: center; z-index: 10; position: relative; padding-top: 60px; }
+.cta-pre { font-size: 18px; letter-spacing: 8px; color: var(--dourado); margin-bottom: 12px; text-transform: uppercase; }
+.cta-title { font-family: 'Bebas Neue', sans-serif; font-size: 130px; letter-spacing: 8px; line-height: 0.9; color: var(--branco); }
+.cta-title .gold { color: var(--dourado); display: block; }
+.cta-sub { font-family: 'Playfair Display', serif; font-size: 32px; font-style: italic; color: rgba(244,239,230,0.5); margin-top: 18px; }
+.cta-btn {
+  display: inline-flex; align-items: center; gap: 16px; margin-top: 50px;
+  background: var(--dourado-rich); color: #000;
+  font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 6px;
+  padding: 24px 70px; position: relative; overflow: hidden;
+  animation: glow-btn 2.5s ease-in-out infinite;
+}
+@keyframes glow-btn { 0%,100%{box-shadow:0 0 20px rgba(201,168,76,.3)} 50%{box-shadow:0 0 60px rgba(201,168,76,.7)} }
+.cta-btn::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+  animation: sweep 2.5s ease-in-out infinite;
+}
+@keyframes sweep { 0%{left:-100%} 100%{left:200%} }
+.cta-contact { margin-top: 36px; font-size: 22px; letter-spacing: 4px; color: var(--dourado); }
+.cta-end { margin-top: 12px; font-size: 16px; letter-spacing: 2px; color: rgba(244,239,230,0.3); }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="light-leak"></div>
+
+
+<div id="progress-container"><div id="progress-bar"></div></div>
+<div id="slide-counter"></div>
+<div id="pause-indicator">PAUSADO</div>
+<div id="dots"></div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 1: ABERTURA
+══════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1920&q=85');"></div>
+    <div class="overlay-gradient" style="background:linear-gradient(180deg,rgba(0,0,0,.85)0%,rgba(0,0,0,.6)50%,rgba(0,0,0,.85)100%);"></div>
+  </div>
+  <div class="grid-deco"></div>
+  <div class="hero-content">
+    <div class="logo-container reveal-up">
+      <img src="../LOGO/LOGO SEM FUNDO - BARBEARIA EXPANDA.png" width="380" height="380" style="object-fit:contain; filter:brightness(0) invert(1) drop-shadow(0 0 40px rgba(201,168,76,0.5));" />
+    </div>
+    <h1 class="main-title reveal-up delay-1">EXPANDA</h1>
+    <p class="subtitle reveal-up delay-2">"Onde o estilo encontra a tradição"</p>
+    <div class="divider reveal-up delay-3"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 2: CORTE MASCULINO
+══════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=1920&q=85');"></div>
+    <div class="overlay-gradient"></div>
+  </div>
+  <div class="watermark">01</div>
+  <div class="service-content">
+    <div class="service-num reveal-up">01</div>
+    <h2 class="service-title reveal-up delay-1">CORTE<span>MASCULINO</span></h2>
+    <p class="service-desc reveal-up delay-2">Transforme seu visual com técnicas de corte clássicas e modernas, adaptadas ao seu perfil e estilo de vida.</p>
+    <ul class="service-list reveal-up delay-3">
+      <li>Degradês impecáveis (Fade)</li>
+      <li>Cortes clássicos na tesoura</li>
+      <li>Finalização com produtos premium</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 3: BARBA
+══════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('https://images.unsplash.com/photo-1534297635766-a262cdcb8ee4?w=1920&q=85');"></div>
+    <div class="overlay-gradient"></div>
+  </div>
+  <div class="watermark">02</div>
+  <div class="service-content">
+    <div class="service-num reveal-up">02</div>
+    <h2 class="service-title reveal-up delay-1">TERAPIA DE<span>BARBA</span></h2>
+    <p class="service-desc reveal-up delay-2">Mais que um barbear, uma experiência relaxante com toalha quente e óleos essenciais para sua pele.</p>
+    <ul class="service-list reveal-up delay-3">
+      <li>Alinhamento com navalha</li>
+      <li>Toalha quente relaxante</li>
+      <li>Hidratação profunda</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 4: CORTE INFANTIL
+══════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('crianca-corte.jpg');"></div>
+    <div class="overlay-gradient"></div>
+  </div>
+  <div class="watermark">03</div>
+  <div class="service-content">
+    <div class="service-num reveal-up">03</div>
+    <h2 class="service-title reveal-up delay-1">CORTE<span>INFANTIL</span></h2>
+    <p class="service-desc reveal-up delay-2">Ambiente preparado para os pequenos, com paciência e carinho para o primeiro corte de muitos.</p>
+    <ul class="service-list reveal-up delay-3">
+      <li>Atendimento lúdico e divertido</li>
+      <li>Especialistas em crianças</li>
+      <li>Certificado do primeiro corte</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 5: SOBRANCELHA (NOVO)
+══════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('sobrancelha.jpg');"></div>
+    <div class="overlay-gradient"></div>
+  </div>
+  <div class="watermark">04</div>
+  <div class="service-content">
+    <div class="service-num reveal-up">04</div>
+    <h2 class="service-title reveal-up delay-1">DESIGN DE<span>SOBRANCELHA</span></h2>
+    <p class="service-desc reveal-up delay-2">Realce seu olhar com um design preciso que harmoniza com o formato do seu rosto.</p>
+    <ul class="service-list reveal-up delay-3">
+      <li>Design personalizado</li>
+      <li>Linha perfeita com navalha</li>
+      <li>Correção de assimetrias</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 6: HIDRATAÇÃO (NOVO)
+══════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('hidratacao.jpg');"></div>
+    <div class="overlay-gradient"></div>
+  </div>
+  <div class="watermark">05</div>
+  <div class="service-content">
+    <div class="service-num reveal-up">05</div>
+    <h2 class="service-title reveal-up delay-1">HIDRATAÇÃO<span>CAPILAR</span></h2>
+    <p class="service-desc reveal-up delay-2">Recupere a saúde e o brilho dos seus cabelos com tratamentos profissionais de alto impacto.</p>
+    <ul class="service-list reveal-up delay-3">
+      <li>Máscara nutritiva profunda</li>
+      <li>Tratamento anti-frizz</li>
+      <li>Finalização com brilho intenso</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 7: LUZES & PLATINADO (NOVO)
+══════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('luzes.jpg');"></div>
+    <div class="overlay-gradient"></div>
+  </div>
+  <div class="watermark">06</div>
+  <div class="service-content">
+    <div class="service-num reveal-up">06</div>
+    <h2 class="service-title reveal-up delay-1">LUZES &<span>PLATINADO</span></h2>
+    <p class="service-desc reveal-up delay-2">Transformação completa com técnicas modernas de coloração para um resultado ousado e sofisticado.</p>
+    <ul class="service-list reveal-up delay-3">
+      <li>Mechas e balayage</li>
+      <li>Platinado com proteção</li>
+      <li>Tonalização e matização</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 8: GRID DE SERVIÇOS
+══════════════════════════════════════ -->
+<div class="slide" id="s-grid">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('https://images.unsplash.com/photo-1512690196252-7365612bb642?w=1920&q=85'); filter:brightness(0.25) blur(4px);"></div>
+    <div class="overlay-gradient" style="background:rgba(0,0,0,0.82);"></div>
+  </div>
+  <div class="grid-container">
+    <div class="grid-header reveal-up">
+      <p style="color:var(--dourado);letter-spacing:5px;font-size:16px;margin-bottom:10px;">MENU COMPLETO</p>
+      <h2>NOSSAS ESPECIALIDADES</h2>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal-up delay-1"><i>💈</i><h3>CORTE</h3><p>Masculino & Infantil</p></div>
+      <div class="service-card reveal-up delay-2"><i>🪒</i><h3>BARBA</h3><p>Navalha & Toalha</p></div>
+      <div class="service-card reveal-up delay-3"><i>👁</i><h3>SOBRANCELHA</h3><p>Design & Correção</p></div>
+      <div class="service-card reveal-up delay-4"><i>✨</i><h3>QUÍMICA</h3><p>Luzes & Platinado</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 9: PREÇOS (NOVO)
+══════════════════════════════════════ -->
+<div class="slide" id="s-precos">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1920&q=85'); filter:brightness(0.2) blur(4px);"></div>
+    <div class="overlay-gradient" style="background:rgba(0,0,0,0.88);"></div>
+  </div>
+  <div class="price-container">
+    <div class="price-header reveal-up">
+      <p>Tabela de Valores</p>
+      <h2>NOSSOS PREÇOS</h2>
+    </div>
+    <div class="price-grid">
+      <div class="price-card reveal-up delay-1">
+        <div class="price-card-title"><span>💈</span> CORTES</div>
+        <div class="price-item"><span class="price-item-name">Corte Masculino</span><span class="price-item-value">R$ 40,00</span></div>
+        <div class="price-item"><span class="price-item-name">Barba + Corte Masc.</span><span class="price-item-value">R$ 70,00</span></div>
+        <div class="price-item"><span class="price-item-name">Pezinho</span><span class="price-item-value">R$ 15,00</span></div>
+      </div>
+      <div class="price-card featured reveal-up delay-2">
+        <div class="price-badge">DESTAQUE</div>
+        <div class="price-card-title"><span>🪒</span> BARBA & SKIN</div>
+        <div class="price-item"><span class="price-item-name">Barba</span><span class="price-item-value">R$ 35,00</span></div>
+        <div class="price-item"><span class="price-item-name">Sobrancelha</span><span class="price-item-value">R$ 7,00</span></div>
+        <div class="price-item"><span class="price-item-name">Hidratação</span><span class="price-item-value">R$ 20,00</span></div>
+        <div class="price-item"><span class="price-item-name">Limpeza de Ouvido</span><span class="price-item-value">R$ 35,00</span></div>
+      </div>
+      <div class="price-card reveal-up delay-3">
+        <div class="price-card-title"><span>✨</span> QUÍMICA</div>
+        <div class="price-item"><span class="price-item-name">Luzes + Corte</span><span class="price-item-value">R$ 150,00</span></div>
+        <div class="price-item"><span class="price-item-name">Platinado + Corte</span><span class="price-item-value">R$ 180,00</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 10: FRASE INSPIRACIONAL (NOVO)
+══════════════════════════════════════ -->
+<div class="slide" id="s-frase">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('https://images.unsplash.com/photo-1547562643-dead2a3d3b7b?w=1920&q=85');"></div>
+    <div class="overlay-gradient" style="background:linear-gradient(180deg,rgba(0,0,0,.8)0%,rgba(0,0,0,.55)50%,rgba(0,0,0,.8)100%);"></div>
+  </div>
+  <div class="frase-wrap">
+    <div class="quote-mark">"</div>
+    <p class="frase-text reveal-up">Um bom corte não é apenas estilo —<br>é <span class="gold">confiança</span> que você carrega<br>para onde for.</p>
+    <div class="frase-divider reveal-up delay-2"></div>
+    <p class="frase-sig reveal-up delay-3">BARBEARIA EXPANDA</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 11: HORÁRIOS & LOCALIZAÇÃO (NOVO)
+══════════════════════════════════════ -->
+<div class="slide" id="s-horarios">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('https://images.unsplash.com/photo-1512690196252-7365612bb642?w=1920&q=85'); filter:brightness(0.25) blur(3px);"></div>
+    <div class="overlay-gradient" style="background:rgba(0,0,0,0.82);"></div>
+  </div>
+  <div class="hours-wrap">
+    <div class="hours-left">
+      <p class="hours-pre reveal-up">Venha nos visitar</p>
+      <h2 class="hours-title reveal-up delay-1">ONDE<br>ESTAMOS</h2>
+      <p class="hours-address reveal-up delay-2">📍 <strong>Av. Dr. Murici, 3792</strong><br>Costeira — PR</p>
+      <p class="hours-phone reveal-up delay-3">📱 (41) 98765-4321</p>
+      <div class="qr-section reveal-up delay-4">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://wa.me/5541987654321" alt="QR WhatsApp" />
+        <div class="qr-section-text">
+          <strong>Agende pelo WhatsApp</strong>
+          Aponte a câmera e fale<br>com a gente agora mesmo!
+        </div>
+      </div>
+    </div>
+    <div class="hours-right">
+      <p class="hours-pre reveal-up" style="margin-bottom:20px;">Horários de funcionamento</p>
+      <div class="hours-table reveal-up delay-1">
+        <div class="hours-row"><span class="hours-day">Segunda-feira</span><span class="hours-time">09:00 – 19:00</span></div>
+        <div class="hours-row"><span class="hours-day">Terça-feira</span><span class="hours-time">09:00 – 19:00</span></div>
+        <div class="hours-row"><span class="hours-day">Quarta-feira</span><span class="hours-time">09:00 – 19:00</span></div>
+        <div class="hours-row"><span class="hours-day">Quinta-feira</span><span class="hours-time">09:00 – 19:00</span></div>
+        <div class="hours-row"><span class="hours-day">Sexta-feira</span><span class="hours-time">09:00 – 20:00</span></div>
+        <div class="hours-row"><span class="hours-day">Sábado</span><span class="hours-time">08:00 – 18:00</span></div>
+        <div class="hours-row"><span class="hours-day">Domingo</span><span class="hours-closed">Fechado</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 12: CTA FINAL
+══════════════════════════════════════ -->
+<div class="slide" id="s-cta">
+  <div class="bg-wrap">
+    <div class="bg-photo" style="background-image:url('https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=1920&q=85'); filter:brightness(0.4) contrast(1.1);"></div>
+    <div class="overlay-gradient" style="background:radial-gradient(circle at center,rgba(0,0,0,.4)0%,rgba(0,0,0,.92)100%);"></div>
+  </div>
+  <div class="cta-wrap">
+    <p class="cta-pre reveal-up">Seu próximo nível começa aqui</p>
+    <h2 class="cta-title reveal-up delay-1">AGENDE<span class="gold">SEU HORÁRIO</span></h2>
+    <p class="cta-sub reveal-up delay-2">"A transformação que você merece está a um agendamento de distância"</p>
+    <div class="cta-btn reveal-up delay-3">📱 CHAMAR NO WHATSAPP</div>
+    <p class="cta-contact reveal-up delay-4">(41) 98765-4321</p>
+    <p class="cta-end reveal-up delay-5">Av. Dr. Murici, 3792 · @BARBEARIA_EXPANDA</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FOOTER FIXO
+══════════════════════════════════════ -->
+<div class="footer">
+  <div class="footer-item">📍 Av. Dr. Murici, 3792 · Costeira</div>
+  <div class="footer-middle">
+    <div class="footer-brand">BARBEARIA EXPANDA</div>
+  </div>
+  <div class="footer-item">SEG–SEX: 9H–19H &nbsp;·&nbsp; SÁB: 8H–18H</div>
+</div>
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+const progressBar = document.getElementById('progress-bar');
+const counterEl = document.getElementById('slide-counter');
+const pauseEl = document.getElementById('pause-indicator');
+const dotsEl = document.getElementById('dots');
+
+const DURATION = 9000;
+const TOTAL = slides.length;
+let current = 0;
+let startTime = performance.now();
+let paused = false;
+let pausedAt = 0;
+
+/* dots (apenas visual, sem clique) */
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  dotsEl.appendChild(d);
+});
+
+function getDots() { return Array.from(dotsEl.querySelectorAll('.dot')); }
+
+function goTo(idx) {
+  slides[current].classList.remove('active');
+  current = ((idx % TOTAL) + TOTAL) % TOTAL;
+  slides[current].classList.add('active');
+  startTime = performance.now();
+  progressBar.style.width = '0%';
+  counterEl.textContent = (current + 1) + ' / ' + TOTAL;
+  getDots().forEach((d, i) => d.classList.toggle('active', i === current));
+}
+
+function tick(now) {
+  const pct = Math.min(((now - startTime) / DURATION) * 100, 100);
+  progressBar.style.width = pct + '%';
+  if (pct >= 100) goTo(current + 1);
+  requestAnimationFrame(tick);
+}
+
+/* teclado: → / espaço = avançar | ← = voltar | ↑↓ / P / K = pausar/play */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(current - 1); }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'p' || e.key === 'P' || e.key === 'k' || e.key === 'K' || e.key === 'Escape') {
+    e.preventDefault();
+    paused = !paused;
+    if (paused) pausedAt = performance.now();
+    else startTime += performance.now() - pausedAt;
+  }
+});
+
+/* init */
+counterEl.textContent = '1 / ' + TOTAL;
+requestAnimationFrame(tick);
+</script>
+
+</body>
+</html>
